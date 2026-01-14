@@ -1,0 +1,1333 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#16a34a"> 
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Avaliação Pro">
+
+  <title>Avaliação Física Pro</title>
+  <style>
+    /* ================= ESTILO DO APP (TELA) ================= */
+    :root{
+      --bg:#f5f7fb; --card:#ffffff; --text:#0f172a; --muted:#64748b;
+      --line:#e2e8f0; --brand:#16a34a; --brand-weak:#e9f7ee;
+      --danger:#dc2626; --warn:#f59e0b; --ok:var(--brand);
+      --shadow:0 4px 12px rgba(0,0,0,0.08); --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{ margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color:var(--text); background:var(--bg); }
+    .wrap{ max-width: 800px; margin: 0 auto; padding: 16px 16px 100px; }
+    
+    /* Topbar */
+    .topbar{ position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding: 8px 0; }
+    .topbar-inner{ max-width: 800px; margin: 0 auto; padding: 0 16px; display:flex; align-items:center; gap: 12px; }
+    .logo-area { width: 44px; height: 44px; background: #f1f5f9; border-radius: 8px; overflow: hidden; cursor: pointer; display: grid; place-items: center; border: 1px dashed #cbd5e1; flex-shrink: 0; }
+    #customLogo { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .logo-placeholder { font-size: 9px; color: var(--muted); font-weight: 700; text-align: center; line-height: 1; }
+    .brand-text h1 { margin: 0; font-size: 18px; font-weight: 800; color: var(--brand); letter-spacing: -0.5px; outline: none; border-bottom: 1px dashed transparent; }
+    .brand-text span { font-size: 11px; color: var(--muted); font-weight: 500; }
+
+    /* Cards */
+    .card{ background:var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; margin-top: 16px; border: 1px solid rgba(255,255,255,0.6); }
+    .section-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; cursor:pointer; padding-bottom: 4px; }
+    .section-title h3{margin:0; font-size: 17px; color: var(--text); font-weight: 700;}
+    .section-title p{margin:0; color:var(--muted); font-size: 13px;}
+    .chev{ width:32px; height:32px; border-radius:8px; background:#f1f5f9; display:grid; place-items:center; color: var(--muted); }
+    .collapsed .content{display:none} .content{padding-top: 12px; animation: fadeIn .2s;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+
+    /* Inputs */
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field{display:flex; flex-direction:column; gap: 5px;}
+    .label{font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}
+    .input{ display:flex; align-items:center; border:1px solid var(--line); border-radius: 10px; background:#fff; padding: 0 12px; height: 46px; transition: border .2s; }
+    .input:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-weak); }
+    .input input, .input select{ border:0; outline:none; width:100%; font-size: 15px; background:transparent; color: var(--text); font-weight: 600; }
+    .unit{ color: var(--muted); font-weight:700; font-size: 11px; padding-left: 8px; border-left: 1px solid var(--line); }
+
+    /* Protocolos */
+    .proto-wrap{ display:grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; }
+    .proto-btn{ border:1px solid var(--line); background:#f8fafc; border-radius: 10px; padding: 10px; font-weight: 700; color: var(--muted); cursor:pointer; font-size: 12px; text-align: center; }
+    .proto-btn.active{ background: var(--brand-weak); border-color: var(--brand); color: var(--brand); }
+    
+    /* Balão de Info do Protocolo */
+    .info-box{ margin-top: 12px; border:1px solid var(--line); border-radius: 10px; padding: 14px; background:#fff; border-left: 4px solid var(--brand); }
+    .info-box h4{margin:0 0 4px; font-size: 14px; font-weight: 800; color: var(--text);}
+    .info-box p{margin:0 0 8px; color: var(--muted); font-size: 12px; line-height: 1.4;}
+    .info-req { font-size: 11px; font-weight: 700; color: var(--brand); background: var(--brand-weak); padding: 6px 10px; border-radius: 6px; display: inline-block; }
+
+    /* Resultados */
+    .tiles{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .tile{ border:1px solid var(--line); border-radius: 12px; padding: 12px; background:#fff; display:flex; flex-direction:column; justify-content: space-between; min-height: 70px; }
+    .tile .k{color: var(--muted); font-weight: 700; font-size: 10px; text-transform: uppercase;}
+    .tile .v{font-size: 18px; font-weight: 800; margin-top: 4px; color: var(--text);}
+    .badge{ align-self:flex-start; padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; margin-top: 4px; }
+    .badge.ok{background: #dcfce7; color:#166534;} .badge.warn{background: #fef9c3; color:#854d0e;} .badge.bad{background: #fee2e2; color:#991b1b;}
+
+    /* Footer Actions */
+    .actions{ position: fixed; left:0; right:0; bottom:0; background: #fff; border-top: 1px solid var(--line); padding: 12px 16px; z-index: 100; display:flex; justify-content: center; }
+    .actions-inner{ width: 100%; max-width: 800px; display:flex; gap: 8px; overflow-x: auto; }
+    .btn{ border: 1px solid var(--line); background:#fff; border-radius: 10px; padding: 0 16px; height: 44px; font-weight: 700; cursor:pointer; font-size: 13px; color: var(--text); flex: 1; white-space: nowrap; }
+    .btn.primary{ background: var(--brand); border-color: var(--brand); color:#fff; }
+    .btn.danger{ color: var(--danger); border-color: #fca5a5; background: #fef2f2; flex: 0 0 auto; }
+
+    /* Comparação Completa */
+    .compare-head { margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .compare-grid { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .row { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; padding: 10px; border-bottom: 1px solid var(--line); background: #fff; align-items: center; font-size: 12px; }
+    .row:last-child { border-bottom: none; }
+    .row .name { font-weight: 700; color: var(--text); }
+    .delta { font-weight: 800; }
+    .delta.up { color: var(--ok); } .delta.down { color: var(--danger); }
+    .comment { grid-column: 1 / -1; margin-top: 4px; font-size: 11px; color: var(--muted); font-style: italic; background: #f8fafc; padding: 4px 8px; border-radius: 4px; }
+
+    .hidden{display:none !important;}
+    input[type="file"]{display:none}
+
+    /* === MODO DE IMPRESSÃO (PDF) === */
+    #printReport { display: none; }
+    @media print {
+      .topbar, .wrap, .actions { display: none !important; }
+      body { background: #fff; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      #printReport { display: block !important; padding: 0 20px; font-family: 'Helvetica', sans-serif; }
+      .watermark{position:fixed; bottom:10px; right:16px; left:auto; top:auto; display:flex; align-items:flex-end; justify-content:flex-end; pointer-events:none; z-index:0;}
+      .watermark span{font-size:10px; font-weight:700; color:#000; opacity:0.25; transform:none; text-align:right; line-height:1.2; white-space:pre-wrap; padding:0;}
+      #printReport{position:relative; z-index:1;}
+      
+      .report-header { display: flex; justify-content: space-between; border-bottom: 2px solid var(--brand); padding-bottom: 15px; margin-bottom: 20px; }
+      .rh-logo img { height: 60px; max-width: 180px; object-fit: contain; }
+      .rh-info { text-align: right; }
+      .rh-title { font-size: 16px; font-weight: bold; color: var(--brand); text-transform: uppercase; }
+      .rh-sub { font-size: 10px; letter-spacing: 1px; color: #555; text-transform: uppercase; }
+      
+      .doc-title { text-align: center; font-size: 20px; color: #333; margin: 10px 0; font-weight: normal; }
+      .patient-name { text-align: center; font-size: 26px; font-weight: bold; text-transform: uppercase; margin-bottom: 30px; }
+      
+      .report-section { margin-bottom: 25px; page-break-inside: avoid; }
+      .section-label { font-size: 12px; font-weight: bold; color: var(--brand); border-bottom: 1px solid #ccc; padding-bottom: 3px; margin-bottom: 5px; text-transform: uppercase; }
+      
+      .report-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+      .report-table th { text-align: left; padding: 5px; border-bottom: 1px solid #aaa; color: #444; }
+      .report-table td { padding: 5px; border-bottom: 1px solid #eee; }
+      .col-val { text-align: right; font-weight: bold; width: 100px; }
+      
+      .report-footer { position: fixed; bottom: 0; left: 0; right: 0; border-top: 1px solid #ccc; padding-top: 8px; font-size: 9px; color: #666; display: flex; justify-content: space-between; }
+    }
+  
+    /* === DASHBOARD COMPARATIVO (GRÁFICOS) === */
+    .dash{display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-top:10px;}
+    .dash-card{border:1px solid var(--line); border-radius:12px; background:#fff; padding:10px;}
+    .dash-title{font-size:11px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; display:flex; justify-content:space-between; align-items:center; gap:8px;}
+    .dash-val{font-size:12px; font-weight:900; color:var(--text);}
+    .dash-canvas{width:100%; height:90px; display:block; margin-top:8px;}
+
+  </style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="logo-area" id="logoArea"><span class="logo-placeholder">LOGO</span><img id="customLogo" src=""></div>
+    <input type="file" id="logoInput" accept="image/*">
+    <div class="brand-text">
+      <h1 id="clinicaNome" contenteditable="true">Avaliação Física</h1>
+      <span>Relatório Profissional</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap" id="app">
+
+  <div class="card">
+    <div class="section-head" onclick="toggle('secDados', this)">
+      <div class="section-title"><h3>Paciente</h3></div><div class="chev">▼</div>
+    </div>
+    <div class="content" id="secDados">
+      <div class="grid">
+        <div class="field"><div class="label">Nome</div><div class="input"><input id="nome" type="text"></div></div>
+        <div class="field"><div class="label">Data</div><div class="input"><input id="dataAvaliacao" type="date"></div></div>
+        <div class="field"><div class="label">Sexo</div><div class="input"><select id="sexo"><option value="F">Feminino</option><option value="M">Masculino</option></select></div></div>
+        <div class="field"><div class="label">Idade</div><div class="input"><input id="idade" type="number"><div class="unit">anos</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-head" onclick="toggle('secAntro', this)">
+      <div class="section-title"><h3>Antropometria</h3></div><div class="chev">▼</div>
+    </div>
+    <div class="content" id="secAntro">
+      <div class="grid">
+        <div class="field"><div class="label">Peso</div><div class="input"><input id="peso" type="number" step="0.1"><div class="unit">kg</div></div></div>
+        <div class="field"><div class="label">Altura</div><div class="input"><input id="altura" type="number"><div class="unit">cm</div></div></div>
+      </div>
+      <div class="tiles">
+        <div class="tile"><div class="k">IMC</div><div class="v" id="r_imc">—</div><div class="badge" id="b_imc"></div></div>
+        <div class="tile"><div class="k">Peso Ideal</div><div class="v" id="r_pesoideal">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-head" onclick="toggle('secDobras', this)">
+      <div class="section-title"><h3>Composição Corporal</h3><p>Dobras cutâneas</p></div><div class="chev">▼</div>
+    </div>
+    <div class="content" id="secDobras">
+      <div class="label">Protocolo:</div>
+      <div class="proto-wrap" id="protoWrap"></div>
+      
+      <div class="info-box" id="protoInfo">
+        <h4 id="protoName">Protocolo</h4>
+        <p id="protoDesc">Descrição...</p>
+        <div class="info-req" id="protoNeed">Precisa: ...</div>
+      </div>
+
+      <div class="grid" style="margin-top:12px">
+        <div class="field" data-skin="sk_triceps"><div class="label">Tríceps</div><div class="input"><input id="sk_triceps" type="number" step="0.1"><div class="unit">mm</div></div></div>
+        <div class="field" data-skin="sk_biceps"><div class="label">Bíceps</div><div class="input"><input id="sk_biceps" type="number" step="0.1"><div class="unit">mm</div></div></div>
+        <div class="field" data-skin="sk_subesc"><div class="label">Subescapular</div><div class="input"><input id="sk_subesc" type="number" step="0.1"><div class="unit">mm</div></div></div>
+        <div class="field" data-skin="sk_axilar"><div class="label">Axilar Média</div><div class="input"><input id="sk_axilar" type="number" step="0.1"><div class="unit">mm</div></div></div>
+        <div class="field" data-skin="sk_torax"><div class="label">Torácica</div><div class="input"><input id="sk_torax" type="number" step="0.1"><div class="unit">mm</div></div></div>
+        <div class="field" data-skin="sk_suprailiaca"><div class="label">Supra-ilíaca</div><div class="input"><input id="sk_suprailiaca" type="number" step="0.1"><div class="unit">mm</div></div></div>
+        <div class="field" data-skin="sk_abdominal"><div class="label">Abdominal</div><div class="input"><input id="sk_abdominal" type="number" step="0.1"><div class="unit">mm</div></div></div>
+        <div class="field" data-skin="sk_coxa"><div class="label">Coxa</div><div class="input"><input id="sk_coxa" type="number" step="0.1"><div class="unit">mm</div></div></div>
+        <div class="field" data-skin="sk_panturrilha"><div class="label">Panturrilha</div><div class="input"><input id="sk_panturrilha" type="number" step="0.1"><div class="unit">mm</div></div></div>
+        <div class="field" data-skin="sk_supraesp"><div class="label">Supraespinhal</div><div class="input"><input id="sk_supraesp" type="number" step="0.1"><div class="unit">mm</div></div></div>
+      </div>
+      
+      <div class="tiles">
+        <div class="tile"><div class="k">% GORDURA</div><div class="v" id="r_bf">—</div><div class="badge" id="b_bf"></div></div>
+        <div class="tile"><div class="k">Massa Gorda</div><div class="v" id="r_fatkg">—</div></div>
+        <div class="tile"><div class="k">Massa Magra</div><div class="v" id="r_lean">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-head" onclick="toggle('secCirc', this)">
+      <div class="section-title"><h3>Circunferências</h3></div><div class="chev">▼</div>
+    </div>
+    <div class="content collapsed" id="secCirc">
+      <div class="grid">
+        <div class="field"><div class="label">Pescoço</div><div class="input"><input id="c_pescoco" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Tórax</div><div class="input"><input id="c_torax" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Ombro</div><div class="input"><input id="c_ombro" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Cintura</div><div class="input"><input id="c_cintura" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Abdômen</div><div class="input"><input id="c_abdomen" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Quadril</div><div class="input"><input id="c_quadril" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Braço Rel. D</div><div class="input"><input id="c_braco_rel_dir" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Braço Rel. E</div><div class="input"><input id="c_braco_rel_esq" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Braço Con. D</div><div class="input"><input id="c_braco_con_dir" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Braço Con. E</div><div class="input"><input id="c_braco_con_esq" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Coxa Med. D</div><div class="input"><input id="c_coxa_med_dir" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Coxa Med. E</div><div class="input"><input id="c_coxa_med_esq" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Panturrilha D</div><div class="input"><input id="c_pantu_dir" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Panturrilha E</div><div class="input"><input id="c_pantu_esq" type="number" step="0.1"></div></div>
+      </div>
+      <div class="tiles">
+        <div class="tile"><div class="k">RCQ</div><div class="v" id="r_rcq">—</div><div class="badge" id="b_rcq"></div></div>
+        <div class="tile"><div class="k">CMB (Braço)</div><div class="v" id="r_cmb">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-head" onclick="toggle('secDiam', this)">
+      <div class="section-title"><h3>Diâmetros (Ósseo)</h3></div><div class="chev">▼</div>
+    </div>
+    <div class="content collapsed" id="secDiam">
+      <div class="grid">
+        <div class="field"><div class="label">Úmero</div><div class="input"><input id="d_umer" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Fêmur</div><div class="input"><input id="d_femur" type="number" step="0.1"></div></div>
+        <div class="field"><div class="label">Punho</div><div class="input"><input id="d_punho" type="number" step="0.1"></div></div>
+      </div>
+      <div class="tiles">
+        <div class="tile"><div class="k">Peso Ósseo</div><div class="v" id="r_osso">—</div></div>
+        <div class="tile"><div class="k">Peso Residual</div><div class="v" id="r_residual">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-head" onclick="toggle('secResumo', this)">
+      <div class="section-title"><h3>Resumo Geral</h3><p>Resultados finais</p></div><div class="chev">▼</div>
+    </div>
+    <div class="content" id="secResumo">
+      <div class="tiles">
+        <div class="tile"><div class="k">Altura</div><div class="v" id="s_altura">—</div></div>
+        <div class="tile"><div class="k">Peso</div><div class="v" id="s_peso">—</div></div>
+        <div class="tile"><div class="k">% Gordura</div><div class="v" id="s_bf">—</div></div>
+        <div class="tile"><div class="k">RCQ</div><div class="v" id="s_rcq">—</div></div>
+        <div class="tile"><div class="k">Gordura (kg)</div><div class="v" id="s_fatkg">—</div></div>
+        <div class="tile"><div class="k">Massa Magra</div><div class="v" id="s_lean">—</div></div>
+        <div class="tile"><div class="k">P. Ósseo</div><div class="v" id="s_osso">—</div></div>
+        <div class="tile"><div class="k">Residual</div><div class="v" id="s_resid">—</div></div>
+        <div class="tile" style="grid-column: 1/-1; border-color:var(--brand); background:var(--brand-weak);">
+          <div class="k" style="color:var(--brand)">Taxa Metabólica Basal (TMB)</div>
+          <div class="v" id="s_tmb" style="color:var(--text)">—</div>
+          <div class="k" style="margin-top:4px">Mifflin-St Jeor</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-head" onclick="toggle('secObs', this)"><div class="section-title"><h3>Conduta / Obs</h3></div><div class="chev">▼</div></div>
+    <div class="content" id="secObs">
+      <div class="field"><div class="input" style="height:auto; padding:10px;"><textarea id="obs" rows="4" style="width:100%; border:none; outline:none; font-family:inherit; resize:vertical;" placeholder="Observações..."></textarea></div></div>
+    </div>
+  </div>
+
+  
+  <div class="card" id="cardTema">
+    <div class="section-head" onclick="toggle('secTema', this)">
+      <div class="section-title">
+        <h3>Tema</h3>
+        <p>Cor da interface e do PDF</p>
+      </div>
+      <div class="chev">▼</div>
+    </div>
+    <div class="content" id="secTema">
+      <div class="grid">
+        <div class="field">
+          <div class="label">Cor principal</div>
+          <div class="input" style="gap:10px;">
+            <input id="themeColor" type="color" style="width:46px; height:30px; padding:0; border:0; background:transparent;">
+            <input id="themeHex" type="text" placeholder="#16a34a" style="font-weight:700;">
+          </div>
+          <div style="margin-top:8px; color:var(--muted); font-size:12px;">
+            Essa cor muda botões, destaques e o cabeçalho do PDF.
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="label">Prévia</div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div style="width:52px;height:52px;border-radius:14px;background:var(--brand);box-shadow:var(--shadow)"></div>
+            <div>
+              <div style="font-weight:800;">Destaque</div>
+              <div style="color:var(--muted); font-size:12px;">Interface + impressão</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button class="btn" id="btnTemaPadrao">Restaurar padrão</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="card">
+    <div class="section-head"><div class="section-title"><h3>Rodapé (PDF)</h3></div></div>
+    <div class="content">
+      <div class="grid">
+        <div class="field"><div class="label">Instagram</div><div class="input"><input id="confInsta" type="text"></div></div>
+        <div class="field"><div class="label">Telefone</div><div class="input"><input id="confTel" type="text"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="cardCompare">
+    <div class="section-head" onclick="toggle('secCompare', this)"><div class="section-title"><h3>Comparar Avaliações</h3></div><div class="chev">▼</div></div>
+    <div class="content" id="secCompare">
+      <div class="compare-head">
+        <button class="btn primary" id="btnComparePick">Selecionar duas avaliações</button>
+        <input id="fileCompare" type="file" accept="application/json" multiple>
+      </div>
+
+      <div id="compareDash" class="dash" style="display:none;"></div>
+      <div class="compare-grid" id="compareOut" style="display:none; margin-top:10px;"></div>
+    </div>
+  </div>
+
+</div> <div class="actions">
+  <div class="actions-inner">
+    <button class="btn danger" id="btnLimpar">Limpar</button>
+    <button class="btn" id="btnAbrir">Abrir</button>
+    <button class="btn" id="btnPrint">Imprimir / PDF</button>
+    <button class="btn primary" id="btnSalvar">Salvar</button>
+    <input id="fileOpen" type="file" accept="application/json">
+  </div>
+</div>
+
+<div id="printReport">
+  <div class="watermark"><span id="printWatermark"></span></div>
+  <div class="report-header">
+    <div class="rh-logo"><img id="printLogo" src=""></div>
+    <div class="rh-info"><div class="rh-title" id="printClinica">CLÍNICA</div><div class="rh-sub">CONSULTORIA</div></div>
+  </div>
+  <h2 class="doc-title">Avaliação Antropométrica</h2>
+  <div class="patient-name" id="printName">PACIENTE</div>
+
+  <div class="report-section">
+    <div class="section-label">Índices e Composição</div>
+    <table class="report-table"><thead><tr><th>Indicador</th><th class="col-val">Resultado</th></tr></thead><tbody id="tableIndices"></tbody></table>
+  </div>
+  <div class="report-section">
+    <div class="section-label">Dobras Cutâneas (mm)</div>
+    <table class="report-table"><thead><tr><th>Local</th><th class="col-val">Valor</th></tr></thead><tbody id="tableSkin"></tbody></table>
+  </div>
+  <div class="report-section">
+    <div class="section-label">Circunferências (cm)</div>
+    <table class="report-table"><thead><tr><th>Local</th><th class="col-val">Valor</th></tr></thead><tbody id="tableCirc"></tbody></table>
+  </div>
+  <div class="report-section"><div class="section-label">Observações</div><p id="printObsText" style="font-size:12px; white-space:pre-wrap;"></p></div>
+  
+  <div class="report-footer"><div class="rf-contact" id="printContact"></div><div id="printDate"></div></div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const num = (v) => v ? Number(String(v).replace(",", ".")) : 0;
+const fmt = (n, d=1) => (n!=null && Number.isFinite(n)) ? n.toFixed(d).replace(".", ",") : "—";
+const log10 = (x) => Math.log(x)/Math.LN10;
+
+/* ===================== LICENÇA / DEMO (7 DIAS) =======================
+  - DEMO: libera tudo por 7 dias a partir do 1º uso (por navegador/dispositivo).
+  - PRO: ativação definitiva com chave única (amarrada em email + installId).
+  - Fluxo expirado: mostra botão para WhatsApp + campo para colar a chave PRO.
+  Observação: offline não é inviolável (data do dispositivo pode ser alterada),
+  mas isso já segura bem e reduz cancelamentos/repasse.
+====================================================================== */
+
+const LIC_OWNER_KEY = "av_license_owner_v2";
+const LIC_STATE_KEY = "av_license_state_v2"; // "DEMO" | "PRO"
+const DEMO_START_KEY = "av_demo_start_v2";
+const LAST_SEEN_KEY  = "av_last_seen_v2";
+const INSTALL_ID_KEY = "av_install_id_v2";
+
+// 7 dias em ms
+const DEMO_MS = 7 * 24 * 60 * 60 * 1000;
+
+// Chaves fixas (simples)
+const DEMO_KEY_FIXED = "NG-DEMO-7DIAS2026";
+// A senha original (NG-PRO-VITALICIO2026) foi substituída pelo seu Hash SHA-256 para segurança
+const PRO_HASH = "8df0191836aa95629d66526d1729b8236d6537b03b222950942557e5b57367e0";
+
+const enc = new TextEncoder();
+
+function getLS(key){ try { return localStorage.getItem(key); } catch(e){ return null; } }
+function setLS(key,val){ try { localStorage.setItem(key, val); } catch(e){} }
+function delLS(key){ try { localStorage.removeItem(key); } catch(e){} }
+
+function getOwner(){
+  try { return JSON.parse(getLS(LIC_OWNER_KEY) || "null"); } catch(e){ return null; }
+}
+function setOwner(name,email){
+  const o = { name: String(name||"").trim(), email: String(email||"").trim().toLowerCase() };
+  setLS(LIC_OWNER_KEY, JSON.stringify(o));
+  return o;
+}
+
+function getInstallId(){
+  let id = getLS(INSTALL_ID_KEY);
+  if(!id){
+    id = crypto.getRandomValues(new Uint32Array(4)).join("-"); // simples e ok
+    setLS(INSTALL_ID_KEY, id);
+  }
+  return id;
+}
+
+function nowMs(){ return Date.now(); }
+
+function getState(){
+  return (getLS(LIC_STATE_KEY) || "").toUpperCase(); // DEMO/PRO/"" 
+}
+function setState(s){
+  setLS(LIC_STATE_KEY, String(s||"").toUpperCase());
+}
+
+function demoStart(){
+  const v = Number(getLS(DEMO_START_KEY) || 0);
+  return Number.isFinite(v) ? v : 0;
+}
+function ensureDemoStart(){
+  let s = demoStart();
+  if(!s){
+    s = nowMs();
+    setLS(DEMO_START_KEY, String(s));
+  }
+  return s;
+}
+
+// ===== CONFIGURAÇÕES DO PROFISSIONAL =====
+const PROFILE_KEY = "av_prof_profile_v1";
+
+function loadProfile(){
+  try {
+    return JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}");
+  } catch(e){
+    return {};
+  }
+}
+
+function saveProfile(p){
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+}
+function initProfileDefaults(){
+  const profile = loadProfile();
+
+  const insta = document.getElementById("confInsta");
+  const tel   = document.getElementById("confTel");
+
+  if(insta && profile.insta && !insta.value){
+    insta.value = profile.insta;
+  }
+  if(tel && profile.tel && !tel.value){
+    tel.value = profile.tel;
+  }
+
+  // sempre que alterar, vira o novo padrão
+  insta?.addEventListener("input", () => {
+    const p = loadProfile();
+    p.insta = insta.value;
+    saveProfile(p);
+  });
+
+  tel?.addEventListener("input", () => {
+    const p = loadProfile();
+    p.tel = tel.value;
+    saveProfile(p);
+  });
+}
+
+
+function updateLastSeen(){
+  const t = nowMs();
+  const last = Number(getLS(LAST_SEEN_KEY) || 0);
+  if(!last || t > last) setLS(LAST_SEEN_KEY, String(t));
+  return t;
+}
+
+function isClockTampered(){
+  const t = nowMs();
+  const last = Number(getLS(LAST_SEEN_KEY) || 0);
+  // Se o relógio voltou mais de 2h, suspeito
+  return last && (t + 2*60*60*1000) < last;
+}
+
+function demoRemainingMs(){
+  const start = ensureDemoStart();
+  const elapsed = nowMs() - start;
+  return DEMO_MS - elapsed;
+}
+
+async function hmacSha256Hex(secret, message){
+  const key = await crypto.subtle.importKey("raw", enc.encode(secret), {name:"HMAC", hash:"SHA-256"}, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(message));
+  return [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+function canonicalStr(owner, installId){
+  // Mensagem canônica para assinar
+  return `email=${owner.email}|install=${installId}|type=PRO`;
+}
+
+// Verifica se a chave corresponde ao Hash SHA-256 salvo
+async function verifyProKey(key){
+  key = String(key||"").trim().toUpperCase();
+  if(!key) return false;
+
+  // Calcula Hash do input
+  const msgBuffer = new TextEncoder().encode(key);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+  // Compara com o hash salvo
+  return hashHex === PRO_HASH;
+}
+
+function showGateScreen(opts){
+  const {title, subtitle, bodyHtml} = opts;
+  document.body.innerHTML = `
+    <div style="min-height:100vh;background:#0f172a;padding:18px;display:flex;align-items:flex-start;justify-content:center;">
+      <div style="width:100%;max-width:560px;background:#fff;border-radius:16px;padding:16px 16px 18px;box-shadow:0 10px 30px rgba(0,0,0,.25);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <div style="width:44px;height:44px;border-radius:10px;background:#e9f7ee;display:grid;place-items:center;border:1px solid #bbf7d0;color:var(--brand);font-weight:900;">AF</div>
+          <div>
+            <div style="font-size:16px;font-weight:900;color:var(--brand);letter-spacing:-.3px;">${title}</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px;">${subtitle||""}</div>
+          </div>
+        </div>
+        ${bodyHtml}
+      </div>
+    </div>
+  `;
+}
+
+function whatsappLink(name,email,installId){
+  const msg = `Olá! Quero ativar definitivamente o Avaliação Física Pro.%0A%0ANome: ${encodeURIComponent(name)}%0AEmail: ${encodeURIComponent(email)}%0AID: ${encodeURIComponent(installId)}`;
+  return `https://wa.me/55${WHATS_NUMBER}?text=${msg}`;
+}
+
+// seu Whats
+const WHATS_NUMBER = "54991766684";
+
+async function enforceLicenseGate(){
+  updateLastSeen();
+
+  let owner = getOwner();
+  let state = getState();
+  const installId = getInstallId();
+
+  // 1) Se já é PRO, segue
+  if(state === "PRO" && owner && owner.email) return {owner, state};
+
+  // 2) Se não tem owner/state: iniciar DEMO (pede nome/email 1x)
+  if(!owner || !owner.email || !state){
+    showGateScreen({
+      title: "Ativação — Avaliação Física Pro",
+      subtitle: "Versão DEMO (7 dias) com todas as funcionalidades — requer chave DEMO",
+      bodyHtml: `
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;">
+          <div style="font-size:12px;color:#0f172a;font-weight:800;margin-bottom:6px;">Começar DEMO agora</div>
+          <div style="display:grid;gap:10px;">
+            <label style="font-size:11px;color:#64748b;font-weight:800;text-transform:uppercase;">Nome</label>
+            <input id="g_name" style="height:44px;border:1px solid #e2e8f0;border-radius:10px;padding:0 12px;font-size:14px;font-weight:700;outline:none" placeholder="Seu nome" />
+            <label style="font-size:11px;color:#64748b;font-weight:800;text-transform:uppercase;">Email</label>
+            <input id="g_email" style="height:44px;border:1px solid #e2e8f0;border-radius:10px;padding:0 12px;font-size:14px;font-weight:700;outline:none" placeholder="seu@email.com" />
+            <label style="font-size:11px;color:#64748b;font-weight:800;text-transform:uppercase;">Chave DEMO</label>
+            <input id="g_demo" style="height:44px;border:1px solid #e2e8f0;border-radius:10px;padding:0 12px;font-size:14px;font-weight:800;outline:none" placeholder="DEMO-7DIAS" />
+<button id="g_start" style="height:44px;border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:10px;font-weight:900;cursor:pointer;">Iniciar DEMO (7 dias)</button>
+            <div style="font-size:11px;color:#64748b;line-height:1.4;">
+              A DEMO libera <b>todas as funcionalidades</b> por 7 dias. Após expirar, você ativa a versão PRO com a chave definitiva.
+            </div>
+            <div id="g_err" style="font-size:12px;color:#dc2626;font-weight:800;"></div>
+          </div>
+        </div>
+      `
+    });
+
+    document.getElementById("g_start").onclick = () => {
+      const n = document.getElementById("g_name").value.trim();
+      const e = document.getElementById("g_email").value.trim().toLowerCase();
+      const k = document.getElementById("g_demo").value.trim().toUpperCase();
+if(!n || !e || !e.includes("@")){
+        document.getElementById("g_err").textContent = "Preencha nome e email válidos.";
+        return;
+      }
+      if(k !== DEMO_KEY_FIXED.toUpperCase()){
+        document.getElementById("g_err").textContent = "Chave DEMO inválida.";
+        return;
+      }
+      owner = setOwner(n,e);
+      setState("DEMO");
+      ensureDemoStart();
+      location.reload();
+    };
+
+    return null; // bloqueia por enquanto (até iniciar)
+  }
+
+  // 3) DEMO ativa → checar expiração / relógio
+  if(state === "DEMO"){
+    if(isClockTampered()){
+      // se relógio voltou, bloqueia e pede ativação PRO (ou reiniciar demo, mas melhor travar)
+      showExpiredScreen(owner, installId, "Detectamos alteração no relógio do dispositivo. Para continuar, ative a versão PRO.");
+      return null;
+    }
+
+    const rem = demoRemainingMs();
+    if(rem > 0){
+      // segue DEMO
+      return {owner, state, demoRemainingMs: rem};
+    }
+
+    // expirou
+    showExpiredScreen(owner, installId, "Sua DEMO expirou. Para continuar, ative definitivamente.");
+    return null;
+  }
+
+  // qualquer outro estado estranho → volta pra gate
+  delLS(LIC_STATE_KEY);
+  location.reload();
+  return null;
+}
+
+function fmtDays(ms){
+  const d = Math.ceil(ms / (24*60*60*1000));
+  return d < 0 ? 0 : d;
+}
+
+function showExpiredScreen(owner, installId, reason){
+  const wa = whatsappLink(owner.name, owner.email, installId);
+
+  showGateScreen({
+    title: "Ativação definitiva (PRO)",
+    subtitle: reason || "Ative para uso vitalício",
+    bodyHtml: `
+      <div style="border:1px solid #e2e8f0;border-radius:12px;padding:12px;background:#fff;">
+        <div style="display:grid;gap:8px;">
+          <div style="font-size:12px;color:#0f172a;font-weight:900;">Seus dados</div>
+          <div style="font-size:13px;color:#334155;"><b>${owner.name}</b> • ${owner.email}</div>
+          <div style="font-size:11px;color:#64748b;">ID do dispositivo: <b>${installId}</b></div>
+
+          <a href="${wa}" target="_blank" style="text-decoration:none;">
+            <button style="height:44px;width:100%;border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:10px;font-weight:900;cursor:pointer;">
+              Enviar mensagem no WhatsApp para ativar
+            </button>
+          </a>
+
+          <div style="margin-top:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px;">
+            <div style="font-size:11px;color:#64748b;font-weight:900;text-transform:uppercase;margin-bottom:6px;">Já recebeu a chave?</div>
+            <input id="pro_key" style="height:44px;border:1px solid #e2e8f0;border-radius:10px;padding:0 12px;font-size:13px;font-weight:800;outline:none" placeholder="Cole aqui: PRO-VITALICIO" />
+            <button id="pro_btn" style="margin-top:8px;height:44px;width:100%;border:1px solid #0f172a;background:#0f172a;color:#fff;border-radius:10px;font-weight:900;cursor:pointer;">
+              Ativar PRO
+            </button>
+            <div id="pro_err" style="margin-top:8px;font-size:12px;color:#dc2626;font-weight:900;"></div>
+            <div style="margin-top:6px;font-size:11px;color:#64748b;line-height:1.35;">
+              Use a chave PRO para liberar o acesso vitalício neste dispositivo/navegador.
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  });
+
+  document.getElementById("pro_btn").onclick = async () => {
+    const key = document.getElementById("pro_key").value;
+    const ok = await verifyProKey(key);
+    if(!ok){
+      document.getElementById("pro_err").textContent = "Chave inválida. Confira e tente novamente.";
+      return;
+    }
+    setState("PRO");
+    // mantém owner; remove demo keys (opcional)
+    delLS(DEMO_START_KEY);
+    location.reload();
+  };
+}
+
+/* ================= LICENÇA / PROPRIEDADE (OFFLINE - DISSUASÃO) =================
+   - Vitalício, funciona offline.
+   - Não impede 100% o compartilhamento (offline nunca impede), mas "carimba" dono no app, PDF e JSON.
+*/
+const LICENSE_OWNER_KEY = "av_license_owner_v1";
+const LICENSE_CODE_KEY  = "av_license_code_v1";
+
+// Regra simples do código (você gera e envia pro cliente). Ex: RN-AB12CD34
+function validateActivation(name, email, code){
+  name = String(name||"").trim();
+  email = String(email||"").trim().toLowerCase();
+  code = String(code||"").trim().toUpperCase();
+  if(!name || !email || !code) return false;
+  if(!code.startsWith("RN-")) return false;
+  if(code.length < 10) return false;
+  // Opcional: exigir @ no email
+  if(!email.includes("@") || !email.includes(".")) return false;
+  return true;
+}
+
+function getOwner(){
+  try { return JSON.parse(localStorage.getItem(LICENSE_OWNER_KEY) || "null"); }
+  catch(e){ return null; }
+}
+function setOwner(name, email, code){
+  const o = { name: String(name||"").trim(), email: String(email||"").trim().toLowerCase() };
+  localStorage.setItem(LICENSE_OWNER_KEY, JSON.stringify(o));
+  if(code) localStorage.setItem(LICENSE_CODE_KEY, String(code).trim().toUpperCase());
+  return o;
+}
+
+function showActivationGate(){
+  // overlay
+  const gate = document.createElement("div");
+  gate.id = "licenseGate";
+  gate.style.cssText = "position:fixed;inset:0;background:rgba(15,23,42,0.85);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px;";
+  gate.innerHTML = `
+    <div style="width:100%;max-width:520px;background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.25);padding:16px 16px 14px;">
+      <div style="font-weight:900;font-size:18px;color:#0f172a;margin-bottom:6px;">Ativar Avaliação Física Pro</div>
+      <div style="color:#64748b;font-size:13px;line-height:1.4;margin-bottom:12px;">
+        Insira os dados do <strong>comprador</strong>. O nome/email ficam registrados no sistema e aparecem no PDF e nos arquivos salvos.
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <div style="font-size:11px;font-weight:800;color:#64748b;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;">Nome do comprador</div>
+          <input id="licName" type="text" style="width:100%;height:44px;border:1px solid #e2e8f0;border-radius:10px;padding:0 12px;font-weight:700;outline:none;">
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:800;color:#64748b;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;">Email do comprador</div>
+          <input id="licEmail" type="email" style="width:100%;height:44px;border:1px solid #e2e8f0;border-radius:10px;padding:0 12px;font-weight:700;outline:none;">
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:800;color:#64748b;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;">Código</div>
+        <input id="licCode" type="text" placeholder="RN-XXXXXXXX" style="width:100%;height:44px;border:1px solid #e2e8f0;border-radius:10px;padding:0 12px;font-weight:800;letter-spacing:1px;outline:none;text-transform:uppercase;">
+      </div>
+
+      <div id="licMsg" style="min-height:18px;color:#b91c1c;font-weight:800;font-size:12px;margin-bottom:10px;"></div>
+
+      <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end;">
+        <button id="licActivate" style="height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--brand);background:var(--brand);color:#fff;font-weight:900;cursor:pointer;">Ativar</button>
+      </div>
+
+      <div style="margin-top:10px;color:#94a3b8;font-size:11px;line-height:1.35;">
+        Dica: se você trocar de computador, basta ativar novamente com o mesmo código.
+      </div>
+    </div>
+  `;
+  document.body.appendChild(gate);
+
+  const byId = (x)=>document.getElementById(x);
+  byId("licActivate").onclick = () => {
+    const n = byId("licName").value;
+    const e = byId("licEmail").value;
+    const c = byId("licCode").value;
+    if(!validateActivation(n,e,c)){
+      byId("licMsg").textContent = "Dados inválidos. Confira Nome, Email e Código.";
+      return;
+    }
+    setOwner(n,e,c);
+    gate.remove();
+    // atualiza badge/rodapé, etc.
+    try{ updateUI(); saveDraft(); }catch(err){}
+    injectOwnerBadge();
+  };
+}
+
+function enforceOwner(){
+  const o = getOwner();
+  if(o && o.name && o.email) return true;
+  showActivationGate();
+  return false;
+}
+
+function injectOwnerBadge(){
+  const o = getOwner();
+  if(!o) return;
+
+  const state = getState() || "DEMO";
+  let extra = "";
+  if(state === "DEMO"){
+    const rem = demoRemainingMs();
+    extra = ` • DEMO: ${fmtDays(rem)} dia(s) restante(s)`;
+  } else if(state === "PRO"){
+    extra = " • PRO";
+  }
+
+  const old = document.querySelector(".license-badge");
+  if(old) old.remove();
+
+  const b = document.createElement("div");
+  b.className = "license-badge";
+  b.style.cssText = "margin:14px 0 0;color:#64748b;font-size:11px;text-align:center;";
+  b.innerHTML = `Uso pessoal e intransferível — <strong>${o.name}</strong> (${o.email})${extra}`;
+  const app = document.getElementById("app");
+  if(app) app.appendChild(b);
+}
+
+/* CLASSIFICAÇÕES */
+const classIMC = (v) => { if(!v)return"—"; if(v<18.5)return"Baixo Peso"; if(v<25)return"Eutrofia"; if(v<30)return"Sobrepeso"; return"Obesidade"; };
+const classBF = (s,v) => { if(!v)return"—"; const lim=s==="M"?[10,20,25]:[18,28,32]; if(v<lim[0])return"Baixo"; if(v<lim[1])return"Adequado"; if(v<lim[2])return"Alto"; return"Muito Alto"; };
+const classRCQ = (s,v) => { if(!v)return"—"; const c=s==="F"?0.85:0.90; return v<c?"Baixo Risco":"Risco Aumentado"; };
+const siri = (D) => (D && D>0) ? ((4.95/D)-4.5)*100 : null;
+
+/* PROTOCOLOS */
+const PROTOS = [
+  { id:"PETROSKI", name:"Petroski", desc:"Equações BR (4 dobras).", need:(s)=>s==="M"?["sk_subesc","sk_torax","sk_suprailiaca","sk_panturrilha","idade"]:["sk_subesc","sk_triceps","sk_suprailiaca","sk_panturrilha","idade","peso","altura"], 
+    calc:(c)=>{ const a=c.idade; if(c.sexo==="M"){ const s=c.sk_subesc+c.sk_torax+c.sk_suprailiaca+c.sk_panturrilha; if(!s||!a)return{d:null,bf:null}; const D=1.10726863-(0.00081201*s)+(0.00000212*s*s)-(0.00041761*a); return{d:D,bf:siri(D)}; }else{ const s=c.sk_subesc+c.sk_triceps+c.sk_suprailiaca+c.sk_panturrilha; if(!s||!a||!c.peso||!c.altura)return{d:null,bf:null}; const D=1.02902361-(0.00067159*s)+(0.00000242*s*s)-(0.00026073*a)-(0.00056009*c.peso)+(0.00054649*c.altura); return{d:D,bf:siri(D)}; } } },
+  { id:"P3", name:"Pollock 3", desc:"3 dobras.", need:(s)=>s==="M"?["sk_torax","sk_abdominal","sk_coxa","idade"]:["sk_triceps","sk_suprailiaca","sk_coxa","idade"],
+    calc:(c)=>{ const a=c.idade; if(c.sexo==="M"){ const s=c.sk_torax+c.sk_abdominal+c.sk_coxa; if(!s||!a)return{d:null,bf:null}; const D=1.10938-(0.0008267*s)+(0.0000016*s*s)-(0.0002574*a); return{d:D,bf:siri(D)}; }else{ const s=c.sk_triceps+c.sk_suprailiaca+c.sk_coxa; if(!s||!a)return{d:null,bf:null}; const D=1.0994921-(0.0009929*s)+(0.0000023*s*s)-(0.0001392*a); return{d:D,bf:siri(D)}; } } },
+  { id:"P7", name:"Pollock 7", desc:"7 dobras.", need:["sk_torax","sk_axilar","sk_triceps","sk_subesc","sk_abdominal","sk_suprailiaca","sk_coxa","idade"],
+    calc:(c)=>{ const s=c.sk_torax+c.sk_axilar+c.sk_triceps+c.sk_subesc+c.sk_abdominal+c.sk_suprailiaca+c.sk_coxa; const a=c.idade; if(!s||!a)return{d:null,bf:null}; let D; if(c.sexo==="M")D=1.112-(0.00043499*s)+(0.00000055*s*s)-(0.00028826*a); else D=1.097-(0.00046971*s)+(0.00000056*s*s)-(0.00012828*a); return{d:D,bf:siri(D)}; } },
+  { id:"GUEDES", name:"Guedes", desc:"3 dobras (BR).", need:["sk_abdominal","sk_torax","sk_suprailiaca"],
+    calc:(c)=>{ const s=c.sk_abdominal+c.sk_torax+c.sk_suprailiaca; if(!s)return{d:null,bf:null}; const D=1.17136-0.06706*log10(s); return{d:D,bf:siri(D)}; } },
+  { id:"FAULKNER", name:"Faulkner", desc:"4 dobras (%G direto).", need:["sk_triceps","sk_subesc","sk_suprailiaca","sk_abdominal"],
+    calc:(c)=>{ const s=c.sk_triceps+c.sk_subesc+c.sk_suprailiaca+c.sk_abdominal; if(!s)return{d:null,bf:null}; return{d:null,bf:(0.153*s+5.783)}; } },
+  { id:"DURNIN", name:"Durnin", desc:"4 dobras + Idade.", need:["sk_triceps","sk_biceps","sk_subesc","sk_suprailiaca","idade"],
+    calc:(c)=>{ const s=c.sk_triceps+c.sk_biceps+c.sk_subesc+c.sk_suprailiaca; const a=c.idade; if(!s||!a)return{d:null,bf:null}; const L=log10(s); let A,B; if(c.sexo==="M"){ if(a<17){A=1.1533;B=0.0643;}else if(a<=19){A=1.1620;B=0.0630;}else if(a<=29){A=1.1631;B=0.0632;}else if(a<=39){A=1.1422;B=0.0544;}else if(a<=49){A=1.1620;B=0.0700;}else{A=1.1715;B=0.0779;} }else{ if(a<17){A=1.1369;B=0.0598;}else if(a<=19){A=1.1549;B=0.0678;}else if(a<=29){A=1.1599;B=0.0717;}else if(a<=39){A=1.1423;B=0.0632;}else if(a<=49){A=1.1333;B=0.0612;}else{A=1.1339;B=0.0645;} } const D=A-(B*L); return{d:D,bf:siri(D)}; } }
+];
+
+let selectedProto = "PETROSKI";
+
+/* CACHES (performance) */
+const NUM_INPUTS = Array.from(document.querySelectorAll("input[type=number]"));
+const SKIN_FIELDS = Array.from(document.querySelectorAll("[data-skin]"));
+
+/* UPDATE/SAVE agendado (mais rápido) */
+let __rafPending = false;
+function scheduleUpdate(){
+  if(__rafPending) return;
+  __rafPending = true;
+  requestAnimationFrame(() => { __rafPending = false; updateUI(); });
+}
+let __saveTimer = null;
+function scheduleSave(){
+  clearTimeout(__saveTimer);
+  __saveTimer = setTimeout(saveDraft, 250);
+}
+
+
+
+function getCtx(){
+  const d = { 
+    nome:$("nome").value, sexo:$("sexo").value, idade:num($("idade").value), 
+    dataAvaliacao:$("dataAvaliacao").value, peso:num($("peso").value), altura:num($("altura").value),
+    obs:$("obs").value, insta:$("confInsta").value, tel:$("confTel").value
+  };
+  NUM_INPUTS.forEach(i => d[i.id] = num(i.value));
+  return d;
+}
+
+function updateUI(){
+  const c = getCtx();
+  const h = c.altura ? c.altura/100 : null; // FIXED: h pode ser null
+  
+  // Basicos
+  let imc=null;
+  if(c.peso && h){
+    imc = c.peso/(h*h);
+    $("r_imc").textContent = fmt(imc,1);
+    const cl = classIMC(imc); $("b_imc").textContent = cl; $("b_imc").className="badge "+(imc<18.5?"warn":imc<25?"ok":imc<30?"warn":"bad");
+  } else { $("r_imc").textContent="—"; $("b_imc").textContent=""; }
+
+  // FIX: Peso Ideal (Só precisa de Altura)
+  if(h){
+    $("r_pesoideal").textContent = fmt(18.5*h*h,1)+" - "+fmt(24.9*h*h,1)+" kg";
+  } else { $("r_pesoideal").textContent="—"; }
+
+  // Proto Info
+  const p = PROTOS.find(x=>x.id===selectedProto);
+  $("protoInfo").style.display="block";
+  $("protoName").textContent = p.name; $("protoDesc").textContent=p.desc;
+  const need = (typeof p.need==="function") ? p.need(c.sexo) : p.need;
+  $("protoNeed").textContent = "PRECISA: "+(Array.isArray(need)?need.map(k=>k.replace("sk_","").toUpperCase()).join(", "):"VÁRIOS");
+  
+  SKIN_FIELDS.forEach(el=>{
+    const k = el.getAttribute("data-skin");
+    if(Array.isArray(need) && !need.includes(k)) el.classList.add("hidden"); else el.classList.remove("hidden");
+  });
+
+  const res = p.calc(c);
+  const bf = res.bf;
+  $("r_bf").textContent = bf ? fmt(bf,1)+"%" : "—";
+  const cbf=classBF(c.sexo, bf); $("b_bf").textContent=cbf; $("b_bf").className="badge "+(cbf.includes("Adequado")?"ok":cbf.includes("Alto")?"warn":"bad");
+
+  let fatkg=null, lean=null;
+  if(c.peso && bf){ fatkg = c.peso*(bf/100); lean = c.peso - fatkg; }
+  $("r_fatkg").textContent = fmt(fatkg,1)+" kg"; $("r_lean").textContent = fmt(lean,1)+" kg";
+
+  // Circs (RCQ)
+  let rcq=null;
+  if(c.c_cintura && c.c_quadril){
+    rcq = c.c_cintura/c.c_quadril;
+    $("r_rcq").textContent = fmt(rcq,2);
+    const cr = classRCQ(c.sexo, rcq); $("b_rcq").textContent=cr; $("b_rcq").className="badge "+(cr.includes("Baixo")?"ok":"bad");
+  } else { $("r_rcq").textContent="—"; $("b_rcq").textContent=""; }
+
+  let cmb=null;
+  const cb = c.c_braco_rel_dir || c.c_braco_rel_esq;
+  if(cb && c.sk_triceps) cmb = cb - (Math.PI*(c.sk_triceps/10));
+  $("r_cmb").textContent = cmb ? fmt(cmb,1)+" cm" : "—";
+
+  // Osseo
+  let osso=null;
+  if(c.altura && c.d_femur && c.d_punho){
+    const h=c.altura/100, f=c.d_femur/100, pu=c.d_punho/100;
+    const base = (h*h)*pu*f*400; if(base>0) osso = 3.02 * Math.pow(base, 0.712);
+  }
+  $("r_osso").textContent = osso ? fmt(osso,1)+" kg" : "—";
+  
+  let resid=null; if(c.peso) resid = (c.sexo==="M" ? 0.241 : 0.209) * c.peso;
+  $("r_residual").textContent = resid ? fmt(resid,1)+" kg" : "—";
+
+  // Resumo (FIX: Mostrar todos)
+  $("s_altura").textContent = c.altura ? fmt(c.altura,0)+" cm" : "—";
+  $("s_peso").textContent = c.peso ? fmt(c.peso,1)+" kg" : "—";
+  $("s_bf").textContent = bf ? fmt(bf,1)+"%" : "—";
+  $("s_rcq").textContent = rcq ? fmt(rcq,2) : "—";
+  $("s_fatkg").textContent = fatkg ? fmt(fatkg,1)+" kg" : "—";
+  $("s_lean").textContent = lean ? fmt(lean,1)+" kg" : "—";
+  $("s_osso").textContent = osso ? fmt(osso,1)+" kg" : "—";
+  $("s_resid").textContent = resid ? fmt(resid,1)+" kg" : "—";
+
+  // TMB
+  let tmb = null;
+  if(c.peso && c.altura && c.idade){
+    const b = (10 * c.peso) + (6.25 * c.altura) - (5 * c.idade);
+    tmb = (c.sexo === "M") ? (b + 5) : (b - 161);
+  }
+  $("s_tmb").textContent = tmb ? fmt(tmb, 0) + " kcal" : "—";
+
+  // Retorna com calculos para o PDF
+  c.imc = imc; c.bf = bf; c.density = res.d;
+  return c;
+}
+
+// TOGGLE
+function toggle(id, head){ $(id).classList.toggle("collapsed"); }
+
+// RENDER PROTO BUTTONS
+const pw = $("protoWrap");
+PROTOS.forEach(p => {
+  const b = document.createElement("div");
+  b.className = "proto-btn"; b.textContent = p.name;
+  b.onclick = () => { selectedProto = p.id; renderProtoBtns(); scheduleUpdate(); scheduleSave(); };
+  pw.appendChild(b);
+});
+function renderProtoBtns(){ Array.from(pw.children).forEach((b,i) => b.className = "proto-btn "+(PROTOS[i].id===selectedProto?"active":"")); }
+
+// LOGO & NOME
+const LOGO_KEY = "av_logo_v3"; const TITLE_KEY = "av_title_v3";
+
+// ===== TEMA (COR PRINCIPAL) =====
+const THEME_KEY = "av_theme_brand_v1";
+const DEFAULT_BRAND = "var(--brand)".includes("#") ? "var(--brand)" : "#16a34a"; // fallback
+
+function isHexColor(v){ return /^#([0-9a-fA-F]{6})$/.test(String(v||"").trim()); }
+
+function mixWithWhite(hex, amount){ // amount 0..1 (mais alto = mais claro)
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  const nr = Math.round(r + (255 - r) * amount);
+  const ng = Math.round(g + (255 - g) * amount);
+  const nb = Math.round(b + (255 - b) * amount);
+  return "#" + [nr,ng,nb].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+
+function setBrandColor(hex){
+  if(!isHexColor(hex)) return;
+  
+  // 1. Muda CSS
+  document.documentElement.style.setProperty("--brand", hex);
+  document.documentElement.style.setProperty("--brand-weak", mixWithWhite(hex, 0.88));
+  localStorage.setItem(THEME_KEY, hex);
+
+  // 2. Muda cor do navegador (Android)
+  const metaTheme = document.querySelector("meta[name='theme-color']");
+  if(metaTheme) metaTheme.setAttribute("content", hex);
+}
+
+function initThemeUI(){
+  const saved = localStorage.getItem(THEME_KEY);
+  const brand = isHexColor(saved) ? saved : "#16a34a";
+  setBrandColor(brand);
+
+  const colorEl = document.getElementById("themeColor");
+  const hexEl = document.getElementById("themeHex");
+  const btnDefault = document.getElementById("btnTemaPadrao");
+  if(!colorEl || !hexEl || !btnDefault) return;
+
+  colorEl.value = brand;
+  hexEl.value = brand;
+
+  const apply = (val) => {
+    const v = String(val||"").trim();
+    if(isHexColor(v)){
+      setBrandColor(v);
+      colorEl.value = v;
+      hexEl.value = v;
+    }
+  };
+
+  colorEl.addEventListener("input", (e)=> apply(e.target.value));
+  hexEl.addEventListener("input", (e)=> apply(e.target.value.toUpperCase()));
+  btnDefault.addEventListener("click", ()=>{
+    setBrandColor("#16a34a");
+    colorEl.value = "#16a34a";
+    hexEl.value = "#16a34a";
+  });
+}
+
+$("logoArea").onclick = () => $("logoInput").click();
+$("logoInput").onchange = (e) => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = (ev) => { localStorage.setItem(LOGO_KEY, ev.target.result); applyLogo(ev.target.result); };
+  r.readAsDataURL(f);
+};
+$("clinicaNome").addEventListener("input", (e) => localStorage.setItem(TITLE_KEY, e.target.innerText));
+function applyLogo(b64){ if(!b64) return; $("customLogo").src = b64; $("customLogo").style.display="block"; document.querySelector(".logo-placeholder").style.display="none"; $("logoArea").style.border="none"; }
+
+// SAVE/LOAD
+const DRAFT_KEY = "av_fisica_draft_v7";
+function saveDraft(){ localStorage.setItem(DRAFT_KEY, JSON.stringify(getCtx())); }
+function loadDraft(){ const s = localStorage.getItem(DRAFT_KEY); if(s) try{ const o=JSON.parse(s); fillForm(o); }catch(e){} }
+function fillForm(d){ Object.keys(d).forEach(k => { if($(k)) $(k).value = d[k]; }); renderProtoBtns(); updateUI(); }
+
+// INIT
+(async function init(){
+  // Gate DEMO/PRO (7 dias). Se estiver bloqueado, a tela de ativação já foi mostrada.
+  const gate = await enforceLicenseGate();
+  if(!gate) return;
+
+  // Tema (cor principal)
+  initThemeUI();
+
+  initProfileDefaults();
+
+  const svL = localStorage.getItem(LOGO_KEY); if(svL) applyLogo(svL);
+  const svT = localStorage.getItem(TITLE_KEY); if(svT) $("clinicaNome").innerText = svT;
+  if(!$("dataAvaliacao").value) $("dataAvaliacao").value = new Date().toISOString().split("T")[0];
+  renderProtoBtns();
+  document.querySelectorAll("input, select, textarea").forEach(el=>{ el.addEventListener("input", ()=>{ scheduleUpdate(); scheduleSave(); }); });
+  loadDraft(); updateUI();
+  const cr = document.createElement("div"); cr.className="dev-credit"; cr.innerHTML='Desenvolvido por <strong>Rafael Rocha</strong>'; $("app").appendChild(cr);
+  injectOwnerBadge();
+})();
+
+// ACTIONS
+$("btnLimpar").onclick = () => { if(confirm("Limpar?")){ localStorage.removeItem(DRAFT_KEY); location.reload(); } };
+$("btnSalvar").onclick = () => {
+  const d = getCtx();
+  d.licenseOwner = getOwner();
+  const b = new Blob([JSON.stringify(d)], {type:"application/json"});
+  const a = document.createElement("a"); a.href=URL.createObjectURL(b); a.download=`AVALIACAO_${d.nome||"p"}.json`; a.click();
+};
+$("btnAbrir").onclick = () => $("fileOpen").click();
+$("fileOpen").onchange = (e) => {
+  const f = e.target.files[0]; const r = new FileReader();
+  r.onload = (ev) => { try{fillForm(JSON.parse(ev.target.result));saveDraft();}catch(e){alert("Erro");} };
+  r.readAsText(f); e.target.value="";
+};
+
+// IMPRESSÃO PDF
+$("btnPrint").onclick = () => {
+  const c = updateUI(); const d = getCtx();
+  $("printLogo").src = $("customLogo").src || ""; $("printClinica").textContent = $("clinicaNome").textContent; $("printName").textContent = d.nome || "PACIENTE";
+  
+  let fatKg = (d.peso && c.bf) ? d.peso*(c.bf/100) : 0;
+  let leanKg = d.peso - fatKg;
+  let residKg = d.sexo==="M" ? d.peso*0.241 : d.peso*0.209;
+  let rcq = (d.c_cintura && d.c_quadril) ? d.c_cintura/d.c_quadril : 0;
+  
+  const rows1 = [
+    ["Data", new Date(d.dataAvaliacao).toLocaleDateString("pt-BR")], ["Peso (Kg)", fmt(d.peso)], ["Altura (cm)", fmt(d.altura)],
+    ["IMC (Kg/m²)", fmt(c.imc)], ["Classif. IMC", classIMC(c.imc)], ["RCQ", fmt(rcq, 2)], ["Risco RCQ", classRCQ(d.sexo, rcq)],
+    ["% Gordura", fmt(c.bf)], ["Classif. %G", classBF(d.sexo, c.bf)], ["Massa Gorda (Kg)", fmt(fatKg)], ["Massa Magra (Kg)", fmt(leanKg)],
+    ["Massa Residual (Kg)", fmt(residKg)], ["Densidade", fmt(c.density, 3)]
+  ];
+  $("tableIndices").innerHTML = rows1.map(r => `<tr><td>${r[0]}</td><td class="col-val">${r[1]}</td></tr>`).join("");
+
+  const sk = {sk_triceps:"Tricipital", sk_biceps:"Bicipital", sk_subesc:"Subescapular", sk_axilar:"Axilar Média", sk_torax:"Peitoral", sk_suprailiaca:"Supra-ilíaca", sk_abdominal:"Abdominal", sk_coxa:"Coxa", sk_panturrilha:"Panturrilha"};
+  let skRows = "", sumSk = 0;
+  for(let k in sk){ let v = d[k]; if(v > 0) { skRows += `<tr><td>${sk[k]}</td><td class="col-val">${v}</td></tr>`; sumSk += v; } }
+  skRows += `<tr style="font-weight:bold; background:#eee;"><td>Somatório (mm)</td><td class="col-val">${fmt(sumSk,1)}</td></tr>`;
+  $("tableSkin").innerHTML = skRows;
+
+  const ci = {c_pescoco:"Pescoço", c_torax:"Tórax", c_ombro:"Ombro", c_cintura:"Cintura", c_abdomen:"Abdômen", c_quadril:"Quadril", c_braco_rel_dir:"Braço Rel. D", c_braco_con_dir:"Braço Con. D", c_coxa_med_dir:"Coxa D", c_pantu_dir:"Panturrilha D"};
+  let ciRows = ""; for(let k in ci){ let v = d[k]; if(v > 0) ciRows += `<tr><td>${ci[k]}</td><td class="col-val">${v}</td></tr>`; }
+  $("tableCirc").innerHTML = ciRows;
+
+  $("printObsText").textContent = d.obs;
+  const o = getOwner();
+  const licLine = o ? ("Uso pessoal e intransferível — " + o.name + " (" + o.email + ")") : "";
+  $("printContact").textContent = licLine + (licLine ? " • " : "") + (d.insta || "") + (d.tel ? (" • " + d.tel) : "");
+  $("printWatermark").textContent = licLine || "";
+  $("printDate").textContent = "Emitido em " + new Date().toLocaleString("pt-BR");
+  window.print();
+};
+
+/* COMPARAÇÃO INTELIGENTE (COMENTÁRIOS MELHORADOS) */
+$("btnComparePick").onclick = () => $("fileCompare").click();
+
+function _d(n){ return (n==null || !Number.isFinite(n)) ? 0 : n; }
+function _abs(n){ return Math.abs(_d(n)); }
+function _fmtDateISO(s){ try{ return new Date(s).toLocaleDateString("pt-BR"); }catch(e){ return "—"; } }
+
+function gerarConclusaoGeral(A, B){
+  const dPeso = _d(B.peso) - _d(A.peso);
+  const dFat  = _d(B.fatKg) - _d(A.fatKg);
+  const dLean = _d(B.leanKg) - _d(A.leanKg);
+
+  // Recomposição
+  if(_abs(dPeso) < 0.5 && dFat < -0.5 && dLean > 0.5){
+    return "Recomposição corporal: reduziu gordura e ganhou massa magra mantendo o peso.";
+  }
+  // Cutting eficiente
+  if(dPeso < -0.5 && dFat < -0.5 && dLean >= -0.3){
+    return "Cutting eficiente: perda de gordura com boa preservação de massa magra.";
+  }
+  // Cutting agressivo
+  if(dPeso < -0.5 && dFat < -0.5 && dLean < -0.5){
+    return "Atenção: perda de peso com queda relevante de massa magra. Ajustes são recomendados.";
+  }
+  // Hipertrofia de qualidade
+  if(dPeso > 0.5 && dLean > 0.5 && dFat < 0.5){
+    return "Hipertrofia de qualidade: ganho de peso com predominância de massa magra.";
+  }
+  // Ganho de gordura
+  if(dPeso > 0.5 && dFat > 0.5 && dFat > dLean){
+    return "Atenção: ganho de peso com aumento predominante de gordura corporal.";
+  }
+  // Estável
+  if(_abs(dPeso) < 0.5 && _abs(dFat) < 0.5 && _abs(dLean) < 0.5){
+    return "Evolução estável no período avaliado, sem mudanças relevantes na composição.";
+  }
+  return "Evolução mista no período avaliado. Vale avaliar aderência, treino e rotina.";
+}
+
+function comentarioPorMetrica(label, delta, tipo){
+  // tipo: "gordura" | "massa" | "neutro"
+  const d = _d(delta);
+  if(_abs(d) <= 0.1) return "Estável.";
+
+  const up = d > 0;
+  if(tipo === "gordura"){
+    // Para medidas/dobras, subir = pior, descer = melhor
+    if(up){
+      if(label.includes("Cintura") || label.includes("Abdômen")) return "Aumentou gordura central. Ajustes podem ser necessários.";
+      if(label.includes("D.")) return "Dobras aumentaram (gordura subcutânea ↑). Atenção ao controle alimentar.";
+      return "Aumentou (atenção).";
+    } else {
+      if(label.includes("Cintura") || label.includes("Abdômen")) return "Redução de gordura central. Evolução positiva.";
+      if(label.includes("D.")) return "Dobras reduziram (gordura subcutânea ↓). Ótimo.";
+      return "Reduziu (ótimo).";
+    }
+  }
+
+  if(tipo === "massa"){
+    // Subir = bom, descer = pode ser ruim
+    if(up) return "Ganho (bom).";
+    return "Perda. Avaliar ingestão proteica/treino, se não era o objetivo.";
+  }
+
+  // neutro
+  return up ? "Aumentou." : "Diminuiu.";
+}
+
+function gerarInsightsRapidos(A, B){
+  const ins = [];
+  const dCint = _d(B.c_cintura) - _d(A.c_cintura);
+  const dAbd  = _d(B.c_abdomen) - _d(A.c_abdomen);
+  const dBF   = _d(B.bf) - _d(A.bf);
+
+  if(_abs(dCint) >= 1){
+    ins.push(dCint < 0 ? `Cintura ↓ ${fmt(_abs(dCint),1)} cm (gordura central reduzindo).` : `Cintura ↑ ${fmt(_abs(dCint),1)} cm (atenção à gordura central).`);
+  }
+  if(_abs(dAbd) >= 1){
+    ins.push(dAbd < 0 ? `Abdômen ↓ ${fmt(_abs(dAbd),1)} cm (boa evolução).` : `Abdômen ↑ ${fmt(_abs(dAbd),1)} cm (atenção).`);
+  }
+  if(_abs(dBF) >= 0.7){
+    ins.push(dBF < 0 ? `% gordura ↓ ${fmt(_abs(dBF),1)} p.p.` : `% gordura ↑ ${fmt(_abs(dBF),1)} p.p.`);
+  }
+
+  const dLean = _d(B.leanKg) - _d(A.leanKg);
+  if(_abs(dLean) >= 0.7){
+    ins.push(dLean > 0 ? `Massa magra ↑ ${fmt(_abs(dLean),1)} kg.` : `Massa magra ↓ ${fmt(_abs(dLean),1)} kg.`);
+  }
+
+  return ins.slice(0, 4);
+}
+
+$("fileCompare").onchange = async (e) => {
+  const fl = Array.from(e.target.files);
+  if(fl.length !== 2) { alert("Selecione 2 arquivos."); return; }
+
+  try {
+    const txts = await Promise.all(fl.map(f => f.text()));
+    const rawJs = txts.map(t => JSON.parse(t));
+
+    // Recalcular (padroniza usando Petroski)
+    const pAlgo = PROTOS.find(p=>p.id==="PETROSKI");
+    const proc = rawJs.map(raw => {
+      const res = pAlgo.calc(raw);
+      const peso = _d(raw.peso);
+      const bf = _d(res.bf);
+      const fat = (peso && bf) ? peso*(bf/100) : 0;
+      const lean = peso - fat;
+      return { ...raw, bf:res.bf, fatKg:fat, leanKg:lean };
+    });
+
+    let A=proc[0], B=proc[1];
+    if(A.dataAvaliacao > B.dataAvaliacao) { let t=A; A=B; B=t; }
+
+    const out = $("compareOut");
+    out.style.display="grid";
+    out.innerHTML="";
+
+    const periodo = `${_fmtDateISO(A.dataAvaliacao)} ➝ ${_fmtDateISO(B.dataAvaliacao)}`;
+    const conclusao = gerarConclusaoGeral(A, B);
+    const insights = gerarInsightsRapidos(A, B);
+
+    const head = document.createElement("div");
+    head.style.gridColumn = "1/-1";
+    head.style.marginBottom = "10px";
+    head.style.padding = "10px";
+    head.style.background = "#f0fdf4";
+    head.style.border = "1px solid var(--brand)";
+    head.style.borderRadius = "8px";
+    head.style.fontSize = "13px";
+    head.innerHTML = `
+      <div><strong>Conclusão:</strong> ${conclusao}</div>
+      <div style="margin-top:4px;"><small style="color:#555">Período: ${periodo}</small></div>
+      ${insights.length ? `<div style="margin-top:8px;color:#0f172a"><strong>Pontos rápidos:</strong><ul style="margin:6px 0 0 18px;padding:0;">${insights.map(x=>`<li>${x}</li>`).join("")}</ul></div>` : ``}
+    `;
+    out.appendChild(head);
+
+    // Dashboard (gráficos)
+    try{ renderCompareDashboard(A,B); }catch(e){}
+
+
+    const keys = [
+      {l:"Peso (kg)", k:"peso", t:"neutro"},
+      {l:"Gordura (%)", k:"bf", t:"gordura"},
+      {l:"M. Gorda (kg)", k:"fatKg", t:"gordura"},
+      {l:"M. Magra (kg)", k:"leanKg", t:"massa"},
+      {l:"Cintura (cm)", k:"c_cintura", t:"gordura"},
+      {l:"Abdômen (cm)", k:"c_abdomen", t:"gordura"},
+      {l:"Quadril (cm)", k:"c_quadril", t:"neutro"},
+      {l:"Braço Rel. (cm)", k:"c_braco_rel_dir", t:"massa"},
+      {l:"Braço Con. (cm)", k:"c_braco_con_dir", t:"massa"},
+      {l:"Coxa (cm)", k:"c_coxa_med_dir", t:"massa"},
+      {l:"Panturrilha (cm)", k:"c_pantu_dir", t:"massa"},
+      {l:"D. Tríceps (mm)", k:"sk_triceps", t:"gordura"},
+      {l:"D. Abd. (mm)", k:"sk_abdominal", t:"gordura"},
+      {l:"D. Supra (mm)", k:"sk_suprailiaca", t:"gordura"},
+      {l:"D. Subesc. (mm)", k:"sk_subesc", t:"gordura"}
+    ];
+
+    keys.forEach(i => {
+      const va = _d(A[i.k]);
+      const vb = _d(B[i.k]);
+      if(!va && !vb) return;
+
+      const d = vb - va;
+
+      let cls="flat", ar="→";
+      if(_abs(d) > 0.1){
+        const up = d > 0;
+        ar = up ? "▲" : "▼";
+
+        // cor do delta: para gordura (medidas/dobras) subir = ruim (vermelho/down), descer = bom (verde/up)
+        if(i.t === "gordura") cls = up ? "down" : "up";
+        else if(i.t === "massa") cls = up ? "up" : "down";
+        else cls = "flat";
+      }
+
+      const comm = comentarioPorMetrica(i.l, d, i.t);
+
+      const row = document.createElement("div");
+      row.className="row";
+      row.innerHTML = `
+        <div class="name">${i.l}</div>
+        <div>${fmt(va,1)}</div>
+        <div>${fmt(vb,1)}</div>
+        <div class="delta ${cls}">${ar} ${fmt(_abs(d),1)}</div>
+        <div class="comment">${comm}</div>
+      `;
+      out.appendChild(row);
+    });
+
+  } catch(err){
+    console.log(err);
+    alert("Erro ao comparar.");
+  }
+
+  e.target.value="";
+};
+</script>
+</body>
+</html>

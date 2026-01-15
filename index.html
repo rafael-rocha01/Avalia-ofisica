@@ -851,13 +851,32 @@ function injectOwnerBadge(){
     extra = " • PRO";
   }
 
+  // Remove o anterior para não duplicar
   const old = document.querySelector(".license-badge");
   if(old) old.remove();
 
+  // Cria o container (Texto + Botão)
   const b = document.createElement("div");
   b.className = "license-badge";
-  b.style.cssText = "margin:14px 0 0;color:#64748b;font-size:11px;text-align:center;";
-  b.innerHTML = `Uso pessoal e intransferível — <strong>${o.name}</strong> (${o.email})${extra}`;
+  // Margem embaixo (100px) para não ficar escondido atrás de nada
+  b.style.cssText = "margin: 20px 0 100px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:10px;";
+
+  // 1. O Texto (Nome + Dias Restantes)
+  const txt = document.createElement("div");
+  txt.style.cssText = "color:#64748b; font-size:11px;";
+  txt.innerHTML = `Uso pessoal e intransferível — <strong>${o.name}</strong> (${o.email})${extra}`;
+  b.appendChild(txt);
+
+  // 2. O Botão (Só aparece se NÃO for PRO)
+  if(state !== "PRO"){
+    const btn = document.createElement("small");
+    btn.style.cssText = "background:#f1f5f9; padding:6px 12px; border-radius:20px; color:#64748b; cursor:pointer; font-weight:bold; border:1px solid #cbd5e1; font-size:11px;";
+    btn.innerHTML = "🔑 Já tenho uma chave PRO";
+    // Chama a função da janela que criamos antes
+    btn.onclick = abrirAtivacaoManual; 
+    b.appendChild(btn);
+  }
+
   const app = document.getElementById("app");
   if(app) app.appendChild(b);
 }

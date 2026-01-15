@@ -1371,6 +1371,68 @@ $("fileCompare").onchange = async (e) => {
 
   e.target.value="";
 };
+// === FUNÇÃO PARA ATIVAR O PRO MANUALMENTE (ANTES DOS 8 DIAS) ===
+function abrirAtivacaoManual() {
+  // Cria o fundo escuro
+  let modal = document.createElement("div");
+  modal.id = "modal_ativacao";
+  modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; justify-content:center; align-items:center; z-index:9999;";
+  
+  // Cria a caixinha branca
+  modal.innerHTML = `
+    <div style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px; text-align:center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+      <h3 style="margin-top:0; color:#333;">Já tem a Chave PRO?</h3>
+      <p style="color:#666; font-size:14px;">Insira sua licença vitalícia abaixo para desbloquear tudo agora.</p>
+      
+      <input type="text" id="modal_input_key" placeholder="Ex: NG-PRO-2026-A" 
+             style="width:100%; padding:12px; margin:10px 0; border:1px solid #ccc; border-radius:8px; font-size:16px; text-transform:uppercase;">
+      
+      <div style="display:flex; gap:10px; justify-content:center; margin-top:15px;">
+        <button onclick="fecharModal()" style="padding:10px 20px; background:#ccc; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Cancelar</button>
+        <button onclick="validarModal()" style="padding:10px 20px; background:#28a745; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">ATIVAR AGORA</button>
+      </div>
+      <p id="modal_msg" style="color:red; font-size:13px; margin-top:10px; min-height:15px;"></p>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function fecharModal() {
+  let m = document.getElementById("modal_ativacao");
+  if(m) m.remove();
+}
+
+async function validarModal() {
+  let btn = event.target;
+  let input = document.getElementById("modal_input_key");
+  let msg = document.getElementById("modal_msg");
+  
+  btn.textContent = "Verificando...";
+  
+  // Usa a sua função de segurança que já existe
+  let isValid = await verifyProKey(input.value);
+  
+  if(isValid) {
+    msg.style.color = "green";
+    msg.textContent = "Sucesso! Ativando...";
+    
+    // === DISPARA O E-MAIL DO FORMSPREE (Cópia da sua lógica) ===
+    fetch("https://formspree.io/f/xnjjnbbr", { // <--- SEU LINK DO FORMSPREE PRO AQUI
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "ATIVACAO MANUAL (PRE-PRAZO)", data: new Date().toLocaleString() })
+    }).catch(e=>console.log(e));
+
+    // Salva e recarrega
+    localStorage.setItem("av_license_owner_v1", JSON.stringify({ status: "PRO" })); 
+    setTimeout(() => location.reload(), 1500);
+    
+  } else {
+    btn.textContent = "ATIVAR AGORA";
+    msg.style.color = "red";
+    msg.textContent = "Chave Inválida. Tente novamente.";
+  }
+}
 </script>
   <script>
   if ('serviceWorker' in navigator) {
@@ -1381,6 +1443,11 @@ $("fileCompare").onchange = async (e) => {
     });
   }
 </script>
-
+<div style="position:fixed; bottom:10px; width:100%; text-align:center; z-index:900;">
+  <small style="background:rgba(255,255,255,0.8); padding:5px 10px; border-radius:20px; color:#555; cursor:pointer; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1);" 
+         onclick="abrirAtivacaoManual()">
+    🔑 Já tenho uma chave PRO
+  </small>
+</div>
 </body>
 </html>

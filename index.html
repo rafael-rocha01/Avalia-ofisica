@@ -1408,22 +1408,27 @@ async function validarModal() {
   
   btn.textContent = "Verificando...";
   
-  // Usa a sua função de segurança que já existe
+  // 1. Verifica a senha
   let isValid = await verifyProKey(input.value);
   
   if(isValid) {
     msg.style.color = "green";
     msg.textContent = "Sucesso! Ativando...";
     
-    // === DISPARA O E-MAIL DO FORMSPREE (Cópia da sua lógica) ===
-    fetch("https://formspree.io/f/xnjjnbbr", { // <--- SEU LINK DO FORMSPREE PRO AQUI
+    // 2. Envia e-mail de aviso
+    fetch("https://formspree.io/f/xnjjnbbr", { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "ATIVACAO MANUAL (PRE-PRAZO)", data: new Date().toLocaleString() })
+        body: JSON.stringify({ status: "ATIVACAO MANUAL", data: new Date().toLocaleString() })
     }).catch(e=>console.log(e));
 
-    // Salva e recarrega
-    localStorage.setItem("av_license_owner_v1", JSON.stringify({ status: "PRO" })); 
+    // === A CORREÇÃO ESTÁ AQUI ===
+    // Avisa o sistema V2 que agora é PRO
+    setState("PRO");
+    // Remove o contador de dias da Demo
+    delLS("av_demo_start_v2");
+    
+    // Recarrega a página
     setTimeout(() => location.reload(), 1500);
     
   } else {

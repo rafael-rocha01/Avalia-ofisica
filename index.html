@@ -405,7 +405,7 @@ const LAST_SEEN_KEY  = "av_last_seen_v2";
 const INSTALL_ID_KEY = "av_install_id_v2";
 
 // 7 dias em ms
-const DEMO_MS = 7 * 24 * 60 * 60 * 1000;
+const DEMO_MS = 10 * 60 * 1000;
 
 // Chaves fixas (simples)
 const DEMO_KEY_FIXED = "NG-DEMO-7DIAS2026";
@@ -607,11 +607,13 @@ async function enforceLicenseGate(){
       `
     });
 
-    document.getElementById("g_start").onclick = () => {
+ document.getElementById("g_start").onclick = () => {
       const n = document.getElementById("g_name").value.trim();
       const e = document.getElementById("g_email").value.trim().toLowerCase();
       const k = document.getElementById("g_demo").value.trim().toUpperCase();
-if(!n || !e || !e.includes("@")){
+
+      // Validação básica
+      if(!n || !e || !e.includes("@")){
         document.getElementById("g_err").textContent = "Preencha nome e email válidos.";
         return;
       }
@@ -619,10 +621,31 @@ if(!n || !e || !e.includes("@")){
         document.getElementById("g_err").textContent = "Chave DEMO inválida.";
         return;
       }
+
+      // === NOVO: Enviar dados para o seu Formspree ===
+      // IMPORTANTE: Troque o link abaixo pelo SEU link do Formspree
+      const FORMSPREE_URL = "https://formspree.io/f/mkoogvop"; 
+      
+      fetch(FORMSPREE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          nome: n, 
+          email: e, 
+          data: new Date().toLocaleString() 
+        })
+      }).catch(err => console.log("Erro ao enviar cadastro (sem net?):", err));
+      // ================================================
+
       owner = setOwner(n,e);
       setState("DEMO");
       ensureDemoStart();
-      location.reload();
+      
+      // Muda o texto do botão para dar feedback visual
+      document.getElementById("g_start").textContent = "Registrando...";
+      
+      // Aguarda 1,5s antes de recarregar para dar tempo do envio sair
+      setTimeout(() => location.reload(), 1500);
     };
 
     return null; // bloqueia por enquanto (até iniciar)

@@ -529,26 +529,19 @@ function canonicalStr(owner, installId){
   return `email=${owner.email}|install=${installId}|type=PRO`;
 }
 
-// Verifica se a chave corresponde ao Hash SHA-256 salvo
-// === SENHA VITALÍCIA ÚNICA (HASH SHA-256) ===
-// Senha Oficial: 
-const PRO_HASH = "8953151877660506300262174627438186175138072044805726245367370817";
+
+const PRO_KEY_OFFICIAL = "NG-PRO-2026-A";
 
 async function verifyProKey(keyInput) {
   if (!keyInput) return false;
   
-  // Limpa a senha digitada (Tira espaços e põe maiúscula)
+  // 1. Limpa espaços e coloca tudo em maiúsculo
   const cleanKey = keyInput.trim().toUpperCase();
   
-  // Gera o código de segurança da senha digitada
-  const msgBuffer = new TextEncoder().encode(cleanKey);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-  // Compara se bate com a oficial
-  return hashHex === PRO_HASH;
+  // 2. Compara direto
+  return cleanKey === PRO_KEY_OFFICIAL;
 }
+
 
 function showGateScreen(opts){
   const {title, subtitle, bodyHtml} = opts;
@@ -1383,7 +1376,7 @@ function abrirAtivacaoManual() {
       <h3 style="margin-top:0; color:#333;">Já tem a Chave PRO?</h3>
       <p style="color:#666; font-size:14px;">Insira sua licença vitalícia abaixo para desbloquear tudo agora.</p>
       
-      <input type="text" id="modal_input_key" placeholder="Ex: NG-PRO-2026-A" 
+      <input type="text" id="modal_input_key" placeholder="Ex: CHAVE DE ATIVAÇÃO" 
              style="width:100%; padding:12px; margin:10px 0; border:1px solid #ccc; border-radius:8px; font-size:16px; text-transform:uppercase;">
       
       <div style="display:flex; gap:10px; justify-content:center; margin-top:15px;">

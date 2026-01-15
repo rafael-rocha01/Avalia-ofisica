@@ -1440,11 +1440,18 @@ async function validarModal() {
     });
   }
 </script>
-<div style="position:fixed; bottom:10px; width:100%; text-align:center; z-index:900;">
-  <small style="background:rgba(255,255,255,0.8); padding:5px 10px; border-radius:20px; color:#555; cursor:pointer; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1);" 
+<div id="box_ativacao_manual" style="margin-top:40px; margin-bottom:120px; text-align:center; width:100%;">
+  <small style="background:#f1f5f9; padding:8px 16px; border-radius:20px; color:#64748b; cursor:pointer; font-weight:bold; border:1px solid #cbd5e1;" 
          onclick="abrirAtivacaoManual()">
     🔑 Já tenho uma chave PRO
   </small>
 </div>
+
+<script>
+  // Se já for PRO, esconde esse botão para não poluir
+  if (localStorage.getItem("av_license_state_v2") === "PRO") {
+    document.getElementById("box_ativacao_manual").style.display = "none";
+  }
+</script>
 </body>
 </html>

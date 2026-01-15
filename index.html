@@ -532,18 +532,25 @@ function canonicalStr(owner, installId){
 }
 
 // Verifica se a chave corresponde ao Hash SHA-256 salvo
-async function verifyProKey(key){
-  key = String(key||"").trim().toUpperCase();
-  if(!key) return false;
+// === SENHA VITALÍCIA ÚNICA (HASH SHA-256) ===
+// Senha Oficial: 
+const PRO_HASH = "8953151877660506300262174627438186175138072044805726245367370817";
 
-  // Calcula Hash do input
-  const msgBuffer = new TextEncoder().encode(key);
+async function verifyProKey(keyInput) {
+  if (!keyInput) return false;
+  
+  // Limpa a senha digitada (Tira espaços e põe maiúscula)
+  const cleanKey = keyInput.trim().toUpperCase();
+  
+  // Gera o código de segurança da senha digitada
+  const msgBuffer = new TextEncoder().encode(cleanKey);
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-  // Compara com o hash salvo
+  // Compara se bate com a oficial
   return hashHex === PRO_HASH;
+}
 }
 
 function showGateScreen(opts){

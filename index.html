@@ -390,8 +390,8 @@ const num = (v) => v ? Number(String(v).replace(",", ".")) : 0;
 const fmt = (n, d=1) => (n!=null && Number.isFinite(n)) ? n.toFixed(d).replace(".", ",") : "—";
 const log10 = (x) => Math.log(x)/Math.LN10;
 
-/* ===================== LICENÇA / DEMO (7 DIAS) =======================
-  - DEMO: libera tudo por 7 dias a partir do 1º uso (por navegador/dispositivo).
+/* ===================== LICENÇA / DEMO (8 DIAS) =======================
+  - DEMO: libera tudo por 8 dias a partir do 1º uso (por navegador/dispositivo).
   - PRO: ativação definitiva com chave única (amarrada em email + installId).
   - Fluxo expirado: mostra botão para WhatsApp + campo para colar a chave PRO.
   Observação: offline não é inviolável (data do dispositivo pode ser alterada),
@@ -404,11 +404,11 @@ const DEMO_START_KEY = "av_demo_start_v2";
 const LAST_SEEN_KEY  = "av_last_seen_v2";
 const INSTALL_ID_KEY = "av_install_id_v2";
 
-// 7 dias em ms
-const DEMO_MS = 10 * 60 * 1000;
+// 8 dias em ms
+const DEMO_MS = 8 * 24 * 60 * 60 * 1000;
 
 // Chaves fixas (simples)
-const DEMO_KEY_FIXED = "NG-DEMO-7DIAS2026";
+const DEMO_KEY_FIXED = "NG-DEMO-8DIAS2026";
 // A senha original (NG-PRO-VITALICIO2026) foi substituída pelo seu Hash SHA-256 para segurança
 const PRO_HASH = "8df0191836aa95629d66526d1729b8236d6537b03b222950942557e5b57367e0";
 
@@ -586,7 +586,7 @@ async function enforceLicenseGate(){
   if(!owner || !owner.email || !state){
     showGateScreen({
       title: "Ativação — Avaliação Física Pro",
-      subtitle: "Versão DEMO (7 dias) com todas as funcionalidades — requer chave DEMO",
+      subtitle: "Versão DEMO (8 dias) com todas as funcionalidades — requer chave DEMO",
       bodyHtml: `
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;">
           <div style="font-size:12px;color:#0f172a;font-weight:800;margin-bottom:6px;">Começar DEMO agora</div>
@@ -596,10 +596,10 @@ async function enforceLicenseGate(){
             <label style="font-size:11px;color:#64748b;font-weight:800;text-transform:uppercase;">Email</label>
             <input id="g_email" style="height:44px;border:1px solid #e2e8f0;border-radius:10px;padding:0 12px;font-size:14px;font-weight:700;outline:none" placeholder="seu@email.com" />
             <label style="font-size:11px;color:#64748b;font-weight:800;text-transform:uppercase;">Chave DEMO</label>
-            <input id="g_demo" style="height:44px;border:1px solid #e2e8f0;border-radius:10px;padding:0 12px;font-size:14px;font-weight:800;outline:none" placeholder="DEMO-7DIAS" />
-<button id="g_start" style="height:44px;border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:10px;font-weight:900;cursor:pointer;">Iniciar DEMO (7 dias)</button>
+            <input id="g_demo" style="height:44px;border:1px solid #e2e8f0;border-radius:10px;padding:0 12px;font-size:14px;font-weight:800;outline:none" placeholder="DEMO-8DIAS" />
+<button id="g_start" style="height:44px;border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:10px;font-weight:900;cursor:pointer;">Iniciar DEMO (8 dias)</button>
             <div style="font-size:11px;color:#64748b;line-height:1.4;">
-              A DEMO libera <b>todas as funcionalidades</b> por 7 dias. Após expirar, você ativa a versão PRO com a chave definitiva.
+              A DEMO libera <b>todas as funcionalidades</b> por 8 dias. Após expirar, você ativa a versão PRO com a chave definitiva.
             </div>
             <div id="g_err" style="font-size:12px;color:#dc2626;font-weight:800;"></div>
           </div>
@@ -723,10 +723,25 @@ function showExpiredScreen(owner, installId, reason){
       document.getElementById("pro_err").textContent = "Chave inválida. Confira e tente novamente.";
       return;
     }
-    setState("PRO");
-    // mantém owner; remove demo keys (opcional)
-    delLS(DEMO_START_KEY);
-    location.reload();
+ setState("PRO");
+      const FORMSPREE_PRO = "https://formspree.io/f/xnjjnbbr"; 
+      
+      fetch(FORMSPREE_PRO, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          status: "SUCESSO: Cliente Ativou o PRO", 
+          data: new Date().toLocaleString() 
+        })
+      }).catch(err => console.log(err));
+      // ==============================
+
+      // mantém owner; remove demo keys
+      delLS(DEMO_START_KEY);
+      
+      // Muda texto do botão e espera 1.5s para recarregar (pro email sair)
+      document.getElementById("pro_btn").textContent = "Ativando...";
+      setTimeout(() => location.reload(), 1500);  
   };
 }
 
@@ -1082,7 +1097,7 @@ function fillForm(d){ Object.keys(d).forEach(k => { if($(k)) $(k).value = d[k]; 
 
 // INIT
 (async function init(){
-  // Gate DEMO/PRO (7 dias). Se estiver bloqueado, a tela de ativação já foi mostrada.
+  // Gate DEMO/PRO (8 dias). Se estiver bloqueado, a tela de ativação já foi mostrada.
   const gate = await enforceLicenseGate();
   if(!gate) return;
 
